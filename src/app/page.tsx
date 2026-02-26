@@ -2,49 +2,23 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-      <div className="max-w-2xl mx-auto text-center px-6">
-        <div className="mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-6">
-            <span className="text-2xl font-bold text-white">AI</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            AI Resume Builder
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="max-w-3xl mx-auto text-center px-6">
+        <div className="mb-12">
+          <h1 className="text-5xl md:text-6xl font-light text-slate-900 mb-6 tracking-tight">
+            Build a Resume That
+            <br />
+            <span className="font-medium">Gets Read.</span>
           </h1>
-          <p className="text-xl text-slate-300 mb-2">Project 3 — Build Track</p>
-          <p className="text-slate-400">KodNest Premium Build System</p>
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 mb-8">
-          <h2 className="text-lg font-semibold text-white mb-4">8-Step Build Process</h2>
-          <div className="grid grid-cols-4 gap-3 mb-6">
-            {[
-              "Problem",
-              "Market",
-              "Architecture",
-              "HLD",
-              "LLD",
-              "Build",
-              "Test",
-              "Ship",
-            ].map((step, idx) => (
-              <div
-                key={step}
-                className="bg-white/5 rounded-lg p-3 text-center border border-white/10"
-              >
-                <span className="text-xs text-slate-400">Step {idx + 1}</span>
-                <p className="text-sm font-medium text-white">{step}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-sm text-slate-400">
-            Complete each step sequentially. Upload artifacts to unlock the next step.
+          <p className="text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
+            Create a professional resume with AI-powered suggestions. 
+            Clean, minimal, and designed to stand out.
           </p>
         </div>
 
         <Link
-          href="/rb/01-problem"
-          className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+          href="/builder"
+          className="inline-flex items-center justify-center px-8 py-4 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors"
         >
           Start Building
           <svg
@@ -56,11 +30,34 @@ export default function Home() {
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth={2}
+              strokeWidth={1.5}
               d="M13 7l5 5m0 0l-5 5m5-5H6"
             />
           </svg>
         </Link>
+
+        <div className="mt-16 pt-16 border-t border-slate-100">
+          <div className="flex items-center justify-center gap-12 text-slate-400">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm">ATS Optimized</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm">Clean Design</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span className="text-sm">AI Powered</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
