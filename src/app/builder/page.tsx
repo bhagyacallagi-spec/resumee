@@ -9,6 +9,7 @@ import ProjectsForm from '@/components/forms/ProjectsForm';
 import SkillsForm from '@/components/forms/SkillsForm';
 import LinksForm from '@/components/forms/LinksForm';
 import ResumePreview from '@/components/resume/ResumePreview';
+import ATSScore from '@/components/resume/ATSScore';
 
 export default function BuilderPage() {
   const { loadSampleData, clearData } = useResume();
@@ -50,9 +51,10 @@ export default function BuilderPage() {
             </div>
           </div>
 
-          {/* Right Column - Preview */}
+          {/* Right Column - Preview + ATS Score */}
           <div className="w-1/2 bg-slate-200 p-6 overflow-y-auto">
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto space-y-6">
+              <ATSScore />
               <div className="bg-white shadow-lg min-h-[800px]">
                 <ResumePreview />
               </div>

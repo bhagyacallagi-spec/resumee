@@ -1,6 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+
+const STORAGE_KEY = 'resumeBuilderData';
 
 export interface PersonalInfo {
   name: string;
@@ -126,8 +128,30 @@ const sampleResumeData: ResumeData = {
   },
 };
 
+export interface ATSScore {
+  score: number;
+  maxScore: number;
+  breakdown: {
+    summary: number;
+    projects: number;
+    experience: number;
+    skills: number;
+    links: number;
+    metrics: number;
+    education: number;
+  };
+}
+
+export interface Suggestion {
+  id: string;
+  message: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
 interface ResumeContextType {
   resumeData: ResumeData;
+  atsScore: ATSScore;
+  suggestions: Suggestion[];
   updatePersonalInfo: (info: Partial<PersonalInfo>) => void;
   updateSummary: (summary: string) => void;
   addEducation: (education: Omit<Education, 'id'>) => void;
@@ -147,8 +171,157 @@ interface ResumeContextType {
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
 
+// Helper function to calculate ATS Score
+function calculateATSScore(data: ResumeData): ATSScore {
+  const breakdown = {
+    summary: 0,
+    projects: 0,
+    experience: 0,
+    skills: 0,
+    links: 0,
+    metrics: 0,
+    education: 0,
+  };
+
+  // +15 if summary length is 40-120 words
+  const summaryWordCount = data.summary.trim().split(/\s+/).filter(w => w.length > 0).length;
+  if (summaryWordCount >= 40 && summaryWordCount <= 120) {
+    breakdown.summary = 15;
+  }
+
+  // +10 if at least 2 projects
+  if (data.projects.length >= 2) {
+    breakdown.projects = 10;
+  }
+
+  // +10 if at least 1 experience entry
+  if (data.experience.length >= 1) {
+    breakdown.experience = 10;
+  }
+
+  // +10 if skills list has >= 8 items
+  if (data.skills.length >= 8) {
+    breakdown.skills = 10;
+  }
+
+  // +10 if GitHub or LinkedIn link exists
+  if (data.links.github || data.links.linkedin) {
+    breakdown.links = 10;
+  }
+
+  // +15 if any experience/project bullet contains a number (%, X, k, etc.)
+  const hasMetrics = [...data.experience, ...data.projects].some(item => {
+    const text = 'description' in item ? item.description : '';
+    return /\d|%|\b[kmb]\b/i.test(text);
+  });
+  if (hasMetrics) {
+    breakdown.metrics = 15;
+  }
+
+  // +10 if education section has complete fields
+  const hasCompleteEducation = data.education.some(edu => 
+    edu.school && edu.degree && edu.field
+  );
+  if (hasCompleteEducation) {
+    breakdown.education = 10;
+  }
+
+  const totalScore = Object.values(breakdown).reduce((sum, val) => sum + val, 0);
+  
+  return {
+    score: Math.min(totalScore, 100),
+    maxScore: 100,
+    breakdown,
+  };
+}
+
+// Helper function to generate suggestions
+function generateSuggestions(data: ResumeData, score: ATSScore): Suggestion[] {
+  const suggestions: Suggestion[] = [];
+
+  if (score.breakdown.summary < 15) {
+    suggestions.push({
+      id: 'summary',
+      message: 'Write a stronger summary (40–120 words).',
+      priority: 'high',
+    });
+  }
+
+  if (score.breakdown.projects < 10) {
+    suggestions.push({
+      id: 'projects',
+      message: 'Add at least 2 projects.',
+      priority: 'high',
+    });
+  }
+
+  if (score.breakdown.metrics < 15) {
+    suggestions.push({
+      id: 'metrics',
+      message: 'Add measurable impact (numbers) in bullets.',
+      priority: 'high',
+    });
+  }
+
+  if (score.breakdown.skills < 10) {
+    suggestions.push({
+      id: 'skills',
+      message: 'Add more skills (target 8+).',
+      priority: 'medium',
+    });
+  }
+
+  if (score.breakdown.links < 10) {
+    suggestions.push({
+      id: 'links',
+      message: 'Add GitHub or LinkedIn link.',
+      priority: 'medium',
+    });
+  }
+
+  if (score.breakdown.education < 10) {
+    suggestions.push({
+      id: 'education',
+      message: 'Complete education section.',
+      priority: 'low',
+    });
+  }
+
+  return suggestions.slice(0, 3);
+}
+
 export function ResumeProvider({ children }: { children: ReactNode }) {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
+  const [atsScore, setAtsScore] = useState<ATSScore>(calculateATSScore(defaultResumeData));
+  const [suggestions, setSuggestions] = useState<Suggestion[]>(generateSuggestions(defaultResumeData, calculateATSScore(defaultResumeData)));
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          setResumeData(parsed);
+          const score = calculateATSScore(parsed);
+          setAtsScore(score);
+          setSuggestions(generateSuggestions(parsed, score));
+        } catch (e) {
+          console.error('Failed to parse stored resume data:', e);
+        }
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+      const score = calculateATSScore(resumeData);
+      setAtsScore(score);
+      setSuggestions(generateSuggestions(resumeData, score));
+    }
+  }, [resumeData]);
 
   const updatePersonalInfo = (info: Partial<PersonalInfo>) => {
     setResumeData((prev) => ({
@@ -244,18 +417,20 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const loadSampleData = () => {
+  const loadSampleData = useCallback(() => {
     setResumeData(sampleResumeData);
-  };
+  }, []);
 
-  const clearData = () => {
+  const clearData = useCallback(() => {
     setResumeData(defaultResumeData);
-  };
+  }, []);
 
   return (
     <ResumeContext.Provider
       value={{
         resumeData,
+        atsScore,
+        suggestions,
         updatePersonalInfo,
         updateSummary,
         addEducation,
