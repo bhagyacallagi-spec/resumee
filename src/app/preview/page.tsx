@@ -3,9 +3,13 @@
 import { useResume } from '@/context/resume-context';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import TemplateSelector from '@/components/resume/TemplateSelector';
+import ClassicTemplate from '@/components/resume/templates/ClassicTemplate';
+import ModernTemplate from '@/components/resume/templates/ModernTemplate';
+import MinimalTemplate from '@/components/resume/templates/MinimalTemplate';
 
 export default function PreviewPage() {
-  const { resumeData } = useResume();
+  const { resumeData, template } = useResume();
   const { personalInfo, summary, education, experience, projects, skills, links } = resumeData;
 
   return (
@@ -21,14 +25,19 @@ export default function PreviewPage() {
             <span className="text-sm">Back to Builder</span>
           </Link>
           <h1 className="text-lg font-medium text-slate-900">Resume Preview</h1>
-          <div className="w-20" />
+          <div className="w-32">
+            <TemplateSelector />
+          </div>
         </div>
       </div>
 
       {/* Resume Display */}
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="bg-white shadow-xl">
-          <div className="p-12 max-w-3xl mx-auto">
+        <div className="bg-white shadow-xl min-h-[800px]">
+          {template === 'modern' && <ModernTemplate data={resumeData} />}
+          {template === 'minimal' && <MinimalTemplate data={resumeData} />}
+          {(template === 'classic' || !template) && (
+            <div className="p-12 max-w-3xl mx-auto">
             {/* Header */}
             <div className="border-b-2 border-black pb-6 mb-6">
               {personalInfo.name ? (
@@ -198,7 +207,8 @@ export default function PreviewPage() {
                   : 'List your key skills here, separated by commas'}
               </p>
             </div>
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

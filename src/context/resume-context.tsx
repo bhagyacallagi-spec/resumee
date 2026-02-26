@@ -3,6 +3,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
 const STORAGE_KEY = 'resumeBuilderData';
+const TEMPLATE_KEY = 'resumeBuilderTemplate';
+
+export type TemplateType = 'classic' | 'modern' | 'minimal';
 
 export interface PersonalInfo {
   name: string;
@@ -152,6 +155,8 @@ interface ResumeContextType {
   resumeData: ResumeData;
   atsScore: ATSScore;
   suggestions: Suggestion[];
+  template: TemplateType;
+  setTemplate: (template: TemplateType) => void;
   updatePersonalInfo: (info: Partial<PersonalInfo>) => void;
   updateSummary: (summary: string) => void;
   addEducation: (education: Omit<Education, 'id'>) => void;
@@ -294,11 +299,14 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [atsScore, setAtsScore] = useState<ATSScore>(calculateATSScore(defaultResumeData));
   const [suggestions, setSuggestions] = useState<Suggestion[]>(generateSuggestions(defaultResumeData, calculateATSScore(defaultResumeData)));
+  const [template, setTemplateState] = useState<TemplateType>('classic');
 
   // Load from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY);
+      const storedTemplate = localStorage.getItem(TEMPLATE_KEY);
+      
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
@@ -310,6 +318,17 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
           console.error('Failed to parse stored resume data:', e);
         }
       }
+      
+      if (storedTemplate) {
+        setTemplateState(storedTemplate as TemplateType);
+      }
+    }
+  }, []);
+
+  const setTemplate = useCallback((newTemplate: TemplateType) => {
+    setTemplateState(newTemplate);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(TEMPLATE_KEY, newTemplate);
     }
   }, []);
 
@@ -431,6 +450,8 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
         resumeData,
         atsScore,
         suggestions,
+        template,
+        setTemplate,
         updatePersonalInfo,
         updateSummary,
         addEducation,

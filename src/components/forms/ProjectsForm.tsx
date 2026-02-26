@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useResume } from '@/context/resume-context';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, AlertCircle } from 'lucide-react';
+import { getBulletGuidance } from '@/lib/bullet-guidance';
 
 export default function ProjectsForm() {
   const { resumeData, addProject, updateProject, removeProject } = useResume();
@@ -61,6 +62,12 @@ export default function ProjectsForm() {
                   rows={2}
                   className="w-full bg-transparent text-sm text-slate-600 placeholder:text-slate-400 focus:outline-none resize-none"
                 />
+                {proj.description && getBulletGuidance(proj.description) && (
+                  <div className="flex items-start gap-1.5 mt-1.5 text-xs text-amber-600">
+                    <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                    <span>{getBulletGuidance(proj.description)}</span>
+                  </div>
+                )}
                 <input
                   type="text"
                   value={proj.link || ''}
@@ -102,6 +109,12 @@ export default function ProjectsForm() {
               rows={2}
               className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 resize-none"
             />
+            {newProject.description && getBulletGuidance(newProject.description) && (
+              <div className="flex items-start gap-1.5 text-xs text-amber-600">
+                <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{getBulletGuidance(newProject.description)}</span>
+              </div>
+            )}
             <input
               type="text"
               value={newProject.link}

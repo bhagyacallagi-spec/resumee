@@ -10,6 +10,8 @@ import SkillsForm from '@/components/forms/SkillsForm';
 import LinksForm from '@/components/forms/LinksForm';
 import ResumePreview from '@/components/resume/ResumePreview';
 import ATSScore from '@/components/resume/ATSScore';
+import TemplateSelector from '@/components/resume/TemplateSelector';
+import ImprovementPanel from '@/components/resume/ImprovementPanel';
 
 export default function BuilderPage() {
   const { loadSampleData, clearData } = useResume();
@@ -51,10 +53,12 @@ export default function BuilderPage() {
             </div>
           </div>
 
-          {/* Right Column - Preview + ATS Score */}
+          {/* Right Column - Preview + ATS Score + Template + Improvements */}
           <div className="w-1/2 bg-slate-200 p-6 overflow-y-auto">
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="max-w-2xl mx-auto space-y-4">
+              <TemplateSelector />
               <ATSScore />
+              <ImprovementPanel />
               <div className="bg-white shadow-lg min-h-[800px]">
                 <ResumePreview />
               </div>
