@@ -64,7 +64,7 @@ export default function ModernTemplate({ data }: ModernTemplateProps) {
               </h2>
               <div className="space-y-4">
                 {experience.map((exp) => (
-                  <div key={exp.id} className="border-l-2 border-slate-200 pl-4">
+                  <div key={exp.id} className="border-l-2 border-slate-200 pl-4 break-inside-avoid-page">
                     <h3 className="font-semibold text-black">{exp.title}</h3>
                     <div className="text-sm text-slate-600">
                       {exp.company}{exp.location && ` • ${exp.location}`}
@@ -89,7 +89,7 @@ export default function ModernTemplate({ data }: ModernTemplateProps) {
               </h2>
               <div className="space-y-3">
                 {projects.map((proj) => (
-                  <div key={proj.id} className="border-l-2 border-slate-200 pl-4">
+                  <div key={proj.id} className="border-l-2 border-slate-200 pl-4 break-inside-avoid-page">
                     <div className="flex items-baseline gap-2">
                       <h3 className="font-semibold text-black">{proj.name}</h3>
                       {proj.link && (
@@ -137,7 +137,7 @@ export default function ModernTemplate({ data }: ModernTemplateProps) {
               </h2>
               <div className="space-y-2">
                 {education.map((edu) => (
-                  <div key={edu.id}>
+                  <div key={edu.id} className="break-inside-avoid-page">
                     <h3 className="font-medium text-black text-sm">{edu.school}</h3>
                     <div className="text-xs text-slate-600">
                       {edu.degree}{edu.field && `, ${edu.field}`}

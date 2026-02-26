@@ -1,21 +1,40 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { useResume } from '@/context/resume-context';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer, Copy, AlertCircle, Check } from 'lucide-react';
 import TemplateSelector from '@/components/resume/TemplateSelector';
 import ClassicTemplate from '@/components/resume/templates/ClassicTemplate';
 import ModernTemplate from '@/components/resume/templates/ModernTemplate';
 import MinimalTemplate from '@/components/resume/templates/MinimalTemplate';
+import { generatePlainTextResume, validateResumeForExport, copyToClipboard, triggerPrint } from '@/lib/export-utils';
 
 export default function PreviewPage() {
   const { resumeData, template } = useResume();
   const { personalInfo, summary, education, experience, projects, skills, links } = resumeData;
+  
+  const [copied, setCopied] = useState(false);
+  
+  const validation = useMemo(() => validateResumeForExport(resumeData), [resumeData]);
+  
+  const handleCopyText = async () => {
+    const text = generatePlainTextResume(resumeData);
+    const success = await copyToClipboard(text);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+  
+  const handlePrint = () => {
+    triggerPrint();
+  };
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* Top Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-40">
+    <div className="min-h-screen bg-slate-100 print:bg-white">
+      {/* Top Bar - Hidden in print */}
+      <div className="bg-white border-b border-slate-200 sticky top-16 z-40 print:hidden">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
             href="/builder"
@@ -30,10 +49,40 @@ export default function PreviewPage() {
           </div>
         </div>
       </div>
+      
+      {/* Export Bar - Hidden in print */}
+      <div className="bg-white border-b border-slate-200 print:hidden">
+        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {!validation.isValid && (
+              <div className="flex items-center gap-2 text-amber-600 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                <span>Your resume may look incomplete.</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleCopyText}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? 'Copied!' : 'Copy as Text'}
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <Printer className="w-4 h-4" />
+              Print / Save PDF
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Resume Display */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="bg-white shadow-xl min-h-[800px]">
+      <div className="max-w-4xl mx-auto px-6 py-8 print:p-0 print:max-w-none">
+        <div className="bg-white shadow-xl min-h-[800px] print:shadow-none print:min-h-0">
           {template === 'modern' && <ModernTemplate data={resumeData} />}
           {template === 'minimal' && <MinimalTemplate data={resumeData} />}
           {(template === 'classic' || !template) && (
@@ -211,6 +260,92 @@ export default function PreviewPage() {
           )}
         </div>
       </div>
+      
+      {/* Print Styles */}
+      <style jsx global>{`
+        @media print {
+          @page {
+            margin: 0.5in;
+            size: auto;
+          }
+          
+          body {
+            background: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          
+          .print\\:hidden {
+            display: none !important;
+          }
+          
+          .print\\:p-0 {
+            padding: 0 !important;
+          }
+          
+          .print\\:max-w-none {
+            max-width: none !important;
+          }
+          
+          .print\\:shadow-none {
+            box-shadow: none !important;
+          }
+          
+          .print\\:min-h-0 {
+            min-height: 0 !important;
+          }
+          
+          .print\\:bg-white {
+            background-color: white !important;
+          }
+          
+          /* Ensure sections don't break awkwardly */
+          .bg-white > div > div {
+            break-inside: avoid;
+          }
+          
+          /* Keep project/experience entries together */
+          .space-y-3 > div,
+          .space-y-4 > div {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          
+          /* Ensure consistent spacing */
+          * {
+            color: black !important;
+          }
+          
+          /* Remove colored accents */
+          .text-slate-400,
+          .text-slate-500,
+          .text-slate-600 {
+            color: #666 !important;
+          }
+          
+          .text-slate-700,
+          .text-slate-800 {
+            color: #333 !important;
+          }
+          
+          /* Links should show URL or be black */
+          a {
+            color: black !important;
+            text-decoration: none !important;
+          }
+          
+          /* Background colors to white/light gray */
+          .bg-slate-100 {
+            background-color: #f5f5f5 !important;
+          }
+          
+          /* Border colors to gray */
+          .border-slate-200,
+          .border-slate-300 {
+            border-color: #ccc !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

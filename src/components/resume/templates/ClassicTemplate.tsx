@@ -60,7 +60,7 @@ export default function ClassicTemplate({ data }: ClassicTemplateProps) {
           </h2>
           <div className="space-y-3">
             {experience.map((exp) => (
-              <div key={exp.id}>
+              <div key={exp.id} className="break-inside-avoid-page">
                 <div className="flex justify-between items-baseline">
                   <h3 className="font-semibold text-black">{exp.title}</h3>
                   <span className="text-sm text-slate-600">
@@ -87,7 +87,7 @@ export default function ClassicTemplate({ data }: ClassicTemplateProps) {
           </h2>
           <div className="space-y-2">
             {education.map((edu) => (
-              <div key={edu.id}>
+              <div key={edu.id} className="break-inside-avoid-page">
                 <div className="flex justify-between items-baseline">
                   <h3 className="font-semibold text-black">{edu.school}</h3>
                   <span className="text-sm text-slate-600">
@@ -111,7 +111,7 @@ export default function ClassicTemplate({ data }: ClassicTemplateProps) {
           </h2>
           <div className="space-y-2">
             {projects.map((proj) => (
-              <div key={proj.id}>
+              <div key={proj.id} className="break-inside-avoid-page">
                 <div className="flex justify-between items-baseline">
                   <h3 className="font-semibold text-black">{proj.name}</h3>
                   {proj.link && (
